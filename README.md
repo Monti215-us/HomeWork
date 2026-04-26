@@ -12,8 +12,8 @@
 
 #### Ответ:
 
-1. `Заполните здесь этапы выполнения, если требуется ....`
-![alt](https://github.com/Monti215-us/HomeWork/blob/%D0%94%D0%BE%D0%BC%D0%B0%D1%88%D0%BD%D0%B5%D0%B5-%D0%B7%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-%D0%BA-%D0%B7%D0%B0%D0%BD%D1%8F%D1%82%D0%B8%D1%8E-%C2%ABGitLab%C2%BB/img/1.png)
+
+1. ![alt](https://github.com/Monti215-us/HomeWork/blob/%D0%94%D0%BE%D0%BC%D0%B0%D1%88%D0%BD%D0%B5%D0%B5-%D0%B7%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-%D0%BA-%D0%B7%D0%B0%D0%BD%D1%8F%D1%82%D0%B8%D1%8E-%C2%ABGitLab%C2%BB/img/1.png)
 
 ---
 
@@ -30,7 +30,7 @@
  * скриншоты с успешно собранными сборками.
 
 #### Ответ:
-
+1. 
 ```
 stages:
   - build
@@ -49,5 +49,5 @@ test-job:
     - echo "Test ok"
 ```
 
-
+2. 
 ![alt1](https://github.com/Monti215-us/HomeWork/blob/%D0%94%D0%BE%D0%BC%D0%B0%D1%88%D0%BD%D0%B5%D0%B5-%D0%B7%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-%D0%BA-%D0%B7%D0%B0%D0%BD%D1%8F%D1%82%D0%B8%D1%8E-%C2%ABGitLab%C2%BB/img/2.png)`
