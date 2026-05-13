@@ -64,7 +64,11 @@ sudo -u postgres createdb -O zabbix zabbix
 
 zcat /usr/share/zabbix-sql-scripts/postgresql/server.sql.gz | sudo -u zabbix psql zabbix
 
+nano /etc/zabbix/zabbix_server.conf 
+DBPassword=12345678
 
+ systemctl restart zabbix-server zabbix-agent apache2
+ systemctl enable zabbix-server zabbix-agent apache2
 ```
 ---
 
