@@ -78,21 +78,21 @@ DBPassword=12345678
 Установите Zabbix Agent на два хоста.
 
 Ответ: 
-![Скрин conf]()
-![Скрин log]()
-![Скрин latest](image.png)
+![Скрин conf](https://github.com/Monti215-us/HomeWork/blob/%D0%A1%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0-%D0%BC%D0%BE%D0%BD%D0%B8%D1%82%D0%BE%D1%80%D0%B8%D0%BD%D0%B3%D0%B0-Zabbix/img/conf.png?raw=true)
+![Скрин log](https://github.com/Monti215-us/HomeWork/blob/%D0%A1%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0-%D0%BC%D0%BE%D0%BD%D0%B8%D1%82%D0%BE%D1%80%D0%B8%D0%BD%D0%B3%D0%B0-Zabbix/img/log.png?raw=true)
+![Скрин latest](https://github.com/Monti215-us/HomeWork/blob/%D0%A1%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0-%D0%BC%D0%BE%D0%BD%D0%B8%D1%82%D0%BE%D1%80%D0%B8%D0%BD%D0%B3%D0%B0-Zabbix/img/latest.png?raw=true)
 
-#### Процесс выполнения
-1. Выполняя ДЗ, сверяйтесь с процессом отражённым в записи лекции.
-2. Установите Zabbix Agent на 2 вирт.машины, одной из них может быть ваш Zabbix Server.
-3. Добавьте Zabbix Server в список разрешенных серверов ваших Zabbix Agentов.
-4. Добавьте Zabbix Agentов в раздел Configuration > Hosts вашего Zabbix Servera.
-5. Проверьте, что в разделе Latest Data начали появляться данные с добавленных агентов.
+Шаги и команды: 
+При установке zabbix-агента на хост были использованы команды:
+```
+ wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_latest_7.0+ubuntu22.04_all.deb # скачивание репозитория zabbix
+ dpkg -i zabbix-release_latest_7.0+ubuntu22.04_all.deb                                                                   # установка репозитория в установщик пакетов
+ apt update   # обновление списка приложений
+ apt install zabbix-agent   # непосредтсвенная установка zabbix агента. 
 
-#### Требования к результатам
-1. Приложите в файл README.md скриншот раздела Configuration > Hosts, где видно, что агенты подключены к серверу
-2. Приложите в файл README.md скриншот лога zabbix agent, где видно, что он работает с сервером
-3. Приложите в файл README.md скриншот раздела Monitoring > Latest data для обоих хостов, где видны поступающие от агентов данные.
-4. Приложите в файл README.md текст использованных команд в GitHub
+ nano /etc/zabbix/zabbix-agent.conf # редактирование конфигурационного файла. Заменена строка `Server=128.0.0.1` на ip адрес zabbix-сервера `Server=192.168.11.132` 
 
+ systemctl restart zabbix-agent # перезапуск сервиса для применения изменений конф.файла
+ systemctl enable zabbix-agent  # запуск сервиса 
+```
 ---
