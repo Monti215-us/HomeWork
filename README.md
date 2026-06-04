@@ -26,7 +26,7 @@
 
 
 `При необходимости прикрепитe сюда скриншоты
-![Для 1 задания](ссылка на скриншот 1)`
+![Для 1 задания](https://github.com/Monti215-us/HomeWork/blob/Disaster-recovery-%D0%B8-Keepalived/img/1.png?raw=true)`
 ---
 
 ### Задание 2
