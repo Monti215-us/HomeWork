@@ -133,8 +133,12 @@ track_script {
 ```
 
 ### Демонстрация работы 2 задания
+
 - На данном скриншоте справа - мастер сервер. Слева - бэкап. На обоих запущен сервис nginx. Рабочий адрес 192.168.11.250 имеет только мастер сервер. 
+
 ![Для 2 задания](https://github.com/Monti215-us/HomeWork/blob/Disaster-recovery-%D0%B8-Keepalived/img/2.1.png?raw=true)
+
 - На втором скриншоте сервис nginx отключен на правом сервере и адрес 192.168.11.250 перешёл на резервный сервер. 
+
 ![Для 2 задания](https://github.com/Monti215-us/HomeWork/blob/Disaster-recovery-%D0%B8-Keepalived/img/2.2.png?raw=true)
 ---
