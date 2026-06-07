@@ -36,5 +36,102 @@
 - Настройте Keepalived так, чтобы он запускал данный скрипт каждые 3 секунды и переносил виртуальный IP на другой сервер, если bash-скрипт завершался с кодом, отличным от нуля (то есть порт веб-сервера был недоступен или отсутствовал index.html). Используйте для этого секцию vrrp_script
 - Отправьте получившейся bash-скрипт и конфигурационный файл keepalived, а также скриншот с демонстрацией переезда плавающего ip на другой сервер в случае недоступности порта или файла index.html
 
+### Ответ 1
+Получившийся bash-скрипт: 
+```
+#!/bin/bash
+
+WEB="/var/www/html"
+INDEX_FILE="${WEB}/index.html"
+
+# Проверка 80 порта
+ss -lnt | grep -q ':80 '
+
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+# Проверка index.html
+if [ ! -f "$INDEX_FILE" ]; then
+    exit 1
+fi
+
+exit 0
+```
+
+Конфигурация мастер сервера: 
+
+```
+global_defs {
+router_id WEB01
+}
+
+vrrp_script chk_web {
+script "/usr/local/bin/check_web.sh"
+interval 3
+}
+
+vrrp_instance VI_1 {
+state MASTER
+interface ens33
+
+virtual_router_id 51
+
+priority 105
+
+authentication {
+    auth_type PASS
+    auth_pass 1234
+}
+
+virtual_ipaddress {
+    192.168.11.250
+}
+
+track_script {
+    chk_web
+}
+
+}
+```
+---
+Конфигурация бэкап сервера: 
+
+```
+global_defs {
+router_id WEB02
+}
+
+vrrp_script chk_web {
+script "/usr/local/bin/check_web.sh"
+interval 3
+weight -60
+}
+
+vrrp_instance VI_1 {
+state BACKUP
+interface ens33
+
+virtual_router_id 51
+
+priority 100
+
+authentication {
+    auth_type PASS
+    auth_pass 1234
+}
+
+virtual_ipaddress {
+    192.168.11.250
+}
+
+track_script {
+    chk_web
+}
+
+}
+```
+
+
 
 ---
