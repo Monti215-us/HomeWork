@@ -105,7 +105,6 @@ router_id WEB02
 vrrp_script chk_web {
 script "/usr/local/bin/check_web.sh"
 interval 3
-weight -60
 }
 
 vrrp_instance VI_1 {
