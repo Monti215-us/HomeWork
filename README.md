@@ -18,4 +18,4 @@
 
 ### Ответ 2
 
-![2](![alt text](image.png))`
+[2](image.png))`
