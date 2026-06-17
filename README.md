@@ -22,3 +22,17 @@
 
 ### Ответ
 ![2](https://github.com/Monti215-us/HomeWork/blob/%D0%A0%D0%B5%D0%B7%D0%B5%D1%80%D0%B2%D0%BD%D0%BE%D0%B5-%D0%BA%D0%BE%D0%BF%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5/img/2.png?raw=true)
+
+```
+#!/bin/bash
+echo $(date) >> /home/neto/backup_log
+rsync -a --delete /home/neto/ /tmp/backup >> /home/neto/backup_log 2>&1
+
+if [ $? -eq 0 ]; then
+        echo "Копирование успешно" >> /home/neto/backup_log 
+else 
+        echo "Копирование неуспешно" >> /home/neto/backup_log
+fi
+
+echo "===========================" >> /home/neto/backup_log
+```
