@@ -30,28 +30,14 @@ services:
       - elastic
 
 
-  nginx:
-    image: nginx:latest
-    container_name: nginx
-    volumes:
-      - ./nginx/logs:/var/log/nginx
-    ports:
-      - "80:80"
-    networks:
-      - elastic
-
-
   logstash:
     image: docker.elastic.co/logstash/logstash:8.14.3
     container_name: logstash
     depends_on:
       - elasticsearch
-      - nginx
     volumes:
       - ./logstash/pipeline:/usr/share/logstash/pipeline
-      - ./nginx/logs:/var/log/nginx
-    ports:
-      - "5044:5044"
+      - /data/compose/49/data/logs:/var/log/nginx:ro
     networks:
       - elastic
 
@@ -64,7 +50,7 @@ services:
     user: root
     volumes:
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - ./nginx/logs:/var/log/nginx:ro
+      - /data/compose/49/data/logs:/var/log/nginx:ro
     networks:
       - elastic
 
