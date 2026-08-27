@@ -25,7 +25,9 @@
 - ftp, ssh, telnet, smtp, donain, http, rpcbind, netbios-ssn Samba 3.X, exec, rlogin, tcpwrapped, ingreslock, nfs, mysql, distccd, postgresql, vnc, X11, irc, ajp13 
 
 - 	vsftpd 2.3.4 https://www.exploit-db.com/exploits/49757
+
    proFTPD 1.3.1 https://www.exploit-db.com/exploits/32798
+
    Mysql 5.0.51a-3ubuntu5 https://www.exploit-db.com/exploits/23077
 
 
