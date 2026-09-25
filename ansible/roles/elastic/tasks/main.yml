@@ -1,0 +1,31 @@
+---
+- name: Install required packages
+  ansible.builtin.apt:
+    name:
+      - docker.io
+      - docker-compose-plugin
+    state: present
+    update_cache: true
+
+- name: Enable Docker
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Create Elasticsearch directory
+  ansible.builtin.file:
+    path: /opt/elasticsearch
+    state: directory
+    mode: "0755"
+
+- name: Copy Docker Compose file
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: /opt/elasticsearch/docker-compose.yml
+    mode: "0644"
+
+- name: Start Elasticsearch
+  community.docker.docker_compose_v2:
+    project_src: /opt/elasticsearch
+    state: present

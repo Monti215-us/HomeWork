@@ -1,0 +1,78 @@
+---
+- name: Download Zabbix repository
+  ansible.builtin.get_url:
+    url: https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_latest_7.0+ubuntu22.04_all.deb
+    dest: /tmp/zabbix-release.deb
+
+- name: Install Zabbix repository
+  ansible.builtin.apt:
+    deb: /tmp/zabbix-release.deb
+    update_cache: true
+
+- name: Install PostgreSQL
+  ansible.builtin.apt:
+    name: postgresql
+    state: present
+
+- name: Install Zabbix Server
+  ansible.builtin.apt:
+    name:
+      - zabbix-server-pgsql
+      - zabbix-sql-scripts
+    state: present
+    update_cache: true
+
+- name: Start PostgreSQL
+  ansible.builtin.service:
+    name: postgresql
+    state: started
+    enabled: true
+
+- name: Create Zabbix database
+  become_user: postgres
+  ansible.builtin.shell:
+    cmd: |
+      psql -tc "SELECT 1 FROM pg_database WHERE datname = 'zabbix'" | grep -q 1 ||
+      createdb zabbix
+  args:
+    executable: /bin/bash
+  changed_when: false
+
+- name: Create Zabbix database user
+  become_user: postgres
+  ansible.builtin.shell:
+    cmd: |
+      psql -tc "SELECT 1 FROM pg_roles WHERE rolname = 'zabbix'" | grep -q 1 ||
+      psql -c "CREATE USER zabbix WITH PASSWORD 'zabbix';"
+  args:
+    executable: /bin/bash
+  changed_when: false
+
+- name: Grant privileges to Zabbix database
+  become_user: postgres
+  ansible.builtin.command:
+    cmd: psql -c "GRANT ALL PRIVILEGES ON DATABASE zabbix TO zabbix;"
+
+- name: Import Zabbix database schema
+  ansible.builtin.shell:
+    cmd: |
+      zcat /usr/share/zabbix/sql-scripts/postgresql/server.sql.gz |
+      sudo -u postgres psql zabbix
+  args:
+    executable: /bin/bash
+
+- name: Configure Zabbix Server database
+  ansible.builtin.lineinfile:
+    path: /etc/zabbix/zabbix_server.conf
+    regexp: '^#?{{ item.key }}='
+    line: '{{ item.key }}={{ item.value }}'
+  loop:
+    - { key: 'DBName', value: 'zabbix' }
+    - { key: 'DBUser', value: 'zabbix' }
+    - { key: 'DBPassword', value: 'zabbix' }
+
+- name: Start Zabbix Server
+  ansible.builtin.service:
+    name: zabbix-server
+    state: started
+    enabled: true

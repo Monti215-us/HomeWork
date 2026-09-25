@@ -1,0 +1,17 @@
+---
+    - name: Install nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+        update_cache: true
+    
+    - name: Копирование сайта на хо>ст
+      ansible.builtin.copy:
+        src: index.html
+        dest: /var/www/html/
+    
+    - name: Ensure nginx is running
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true

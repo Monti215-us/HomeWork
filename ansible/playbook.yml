@@ -1,0 +1,38 @@
+---
+- name: Настройка веб-сервера
+  hosts: webservers
+  become: true
+
+  roles:
+    - nginx
+    - zabbix-agent
+    - filebeat
+
+- name: Настройка bastion
+  hosts: bastion
+  become: true
+
+  roles:
+    - zabbix-agent
+    - zabbix-server
+  
+- name: Настройка kibana
+  hosts: kibana
+  become: true
+
+  roles:
+    - kibana
+
+- name: Настройка elastic
+  hosts: elastic
+  become: true
+
+  roles:
+    - elastic
+
+- name: Настройка 
+  hosts: 
+  become: true
+
+  roles:
+    - 
