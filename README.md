@@ -5,7 +5,7 @@
 - [x] [Регистрация в Yandex Cloud](#YC)
 - [x] [Использование Terraform](#terraform)
 - [x] [Настройка Terraform для работы с YandexCloud](#tf_yc)
-- [ ] [Использование Ansible](#terraform)
+- [x] [Использование Ansible](#terraform)
 - [ ] [Использование Nginx](#terraform)
 - [ ] [Ипользование Zabbix](#terraform)
 - [ ] [Использование ELK стека](#terraform)

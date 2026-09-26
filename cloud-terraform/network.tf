@@ -88,6 +88,7 @@ resource "yandex_vpc_security_group" "web_sg" {
     description       = "Zabbix Agent"
     protocol          = "TCP"
     port              = 10050
+    security_group_id = yandex_vpc_security_group.bastion.id
   }
 
   egress {
@@ -107,6 +108,7 @@ resource "yandex_vpc_security_group" "elasticsearch" {
     description       = "Elasticsearch from webservers"
     protocol          = "TCP"
     port              = 9200
+    security_group_id = yandex_vpc_security_group.web_sg.id
   }
 
   ingress {
