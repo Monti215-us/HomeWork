@@ -22,6 +22,7 @@
   roles:
     - docker-compose
     - kibana
+    - zabbix-agent
     
 - name: Настройка elastic
   hosts: elastic
@@ -30,3 +31,12 @@
   roles:
     - docker-compose
     - elastic
+    - zabbix-agent
+
+- name: Настройка zabbix
+  hosts: zabbix
+  become: true
+
+  roles:
+    - zabbix-server
+    - zabbix-agent

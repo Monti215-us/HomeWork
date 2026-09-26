@@ -1,11 +1,11 @@
 #создаем облачную сеть
 resource "yandex_vpc_network" "develop" {
-  name = "develop-fops-${var.flow}"
+  name = "Virtual"
 }
 
 #создаем подсеть zone A
 resource "yandex_vpc_subnet" "private_a" {
-  name           = "develop-fops-${var.flow}-ru-central1-a"
+  name           = "private-a-ru-central1-a"
   zone           = "ru-central1-a"
   network_id     = yandex_vpc_network.develop.id
   v4_cidr_blocks = ["10.0.1.0/24"]
@@ -14,7 +14,7 @@ resource "yandex_vpc_subnet" "private_a" {
 
 #создаем подсеть zone B
 resource "yandex_vpc_subnet" "private_b" {
-  name           = "develop-fops-${var.flow}-ru-central1-b"
+  name           = "private-b-ru-central1-b"
   zone           = "ru-central1-b"
   network_id     = yandex_vpc_network.develop.id
   v4_cidr_blocks = ["10.0.2.0/24"]
@@ -23,7 +23,7 @@ resource "yandex_vpc_subnet" "private_b" {
 
 #создаём публичную сеть
 resource "yandex_vpc_subnet" "public_a" {
-  name           = "public-${var.flow}-ru-central1-a"
+  name           = "public-c-ru-central1-a"
   zone           = "ru-central1-a"
   network_id     = yandex_vpc_network.develop.id
   v4_cidr_blocks = ["10.0.10.0/24"]
@@ -31,13 +31,13 @@ resource "yandex_vpc_subnet" "public_a" {
 
 #создаем NAT для выхода в интернет
 resource "yandex_vpc_gateway" "nat_gateway" {
-  name = "fops-gateway-${var.flow}"
+  name = "gateway"
   shared_egress_gateway {}
 }
 
 #создаем сетевой маршрут для выхода в интернет через NAT
 resource "yandex_vpc_route_table" "rt" {
-  name       = "fops-route-table-${var.flow}"
+  name       = "fops-route-table"
   network_id = yandex_vpc_network.develop.id
 
   static_route {
@@ -49,20 +49,13 @@ resource "yandex_vpc_route_table" "rt" {
 #создаем группы безопасности(firewall)
 
 resource "yandex_vpc_security_group" "bastion" {
-  name       = "bastion-sg-${var.flow}"
+  name       = "bastion-sg"
   network_id = yandex_vpc_network.develop.id
   ingress {
     description    = "Allow 0.0.0.0/0"
     protocol       = "TCP"
     v4_cidr_blocks = ["0.0.0.0/0"]
     port           = 22
-  }
-
-  ingress {
-    description       = "Zabbix Agent"
-    protocol          = "TCP"
-    port              = 10050
-    security_group_id = yandex_vpc_security_group.zabbix.id
   }
 
   egress {
@@ -76,7 +69,7 @@ resource "yandex_vpc_security_group" "bastion" {
 }
 
 resource "yandex_vpc_security_group" "web_sg" {
-  name       = "web-sg-${var.flow}"
+  name       = "web-sg"
   network_id = yandex_vpc_network.develop.id
 
   ingress {
@@ -87,16 +80,17 @@ resource "yandex_vpc_security_group" "web_sg" {
   }
 
   ingress {
-    description    = "Allow HTTP"
-    protocol       = "TCP"
-    port           = 80
-    v4_cidr_blocks = ["0.0.0.0/0"]
-  }
-  ingress {
     description       = "Zabbix Agent"
     protocol          = "TCP"
     port              = 10050
     security_group_id = yandex_vpc_security_group.zabbix.id
+  }
+
+  ingress {
+    description    = "Zabbix Web UI"
+    protocol       = "TCP"
+    port           = 80
+    v4_cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -186,10 +180,17 @@ resource "yandex_vpc_security_group" "zabbix" {
   network_id = yandex_vpc_network.develop.id
 
   ingress {
-    description    = "Kibana"
+    description    = "Zabbix Web UI"
     protocol       = "TCP"
-    port           = 5601
+    port           = 80
     v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description    = "Zabbix Server"
+    protocol       = "TCP"
+    port           = 10051
+    v4_cidr_blocks = ["10.0.0.0/16"]
   }
 
   ingress {
@@ -199,20 +200,6 @@ resource "yandex_vpc_security_group" "zabbix" {
     security_group_id = yandex_vpc_security_group.bastion.id
   }
 
-    ingress {
-    description       = "From zabbix"
-    protocol          = "TCP"
-    port              = 10051
-    security_group_id = yandex_vpc_security_group.zabbix.id
-  }
-
-  ingress {
-    description       = "Zabbix from zabbix"
-    protocol          = "TCP"
-    port              = 10050
-    security_group_id = yandex_vpc_security_group.zabbix.id
-  }
-
   egress {
     protocol       = "ANY"
     v4_cidr_blocks = ["0.0.0.0/0"]
@@ -220,3 +207,4 @@ resource "yandex_vpc_security_group" "zabbix" {
     to_port        = 65535
   }
 }
+

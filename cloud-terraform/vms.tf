@@ -128,6 +128,7 @@ resource "yandex_compute_instance" "elastic" {
   hostname    = "el" #формирует FDQN имя хоста, без hostname будет сгенрировано случаное имя.
   platform_id = "standard-v3"
   zone        = "ru-central1-a" #зона ВМ должна совпадать с зоной subnet!!!
+  allow_stopping_for_update = true
 
 
   resources {

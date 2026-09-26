@@ -76,6 +76,14 @@
     - { key: 'DBPassword', value: 'zabbix' }
   notify: Restart Zabbix Server
 
+- name: Install Zabbix Web UI
+  ansible.builtin.apt:
+    name:
+      - zabbix-frontend-php
+      - zabbix-nginx-conf
+    state: present
+    update_cache: true
+
 - name: Start Zabbix Server
   ansible.builtin.service:
     name: zabbix-server

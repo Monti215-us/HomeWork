@@ -1,0 +1,28 @@
+---
+- name: Deploy Zabbix 7.0
+  hosts: zabbix
+  become: true
+
+  vars:
+    zabbix_server_version: "7.0"
+
+    zabbix_server_database: "postgresql"
+    zabbix_server_dbname: "zabbix"
+    zabbix_server_dbuser: "zabbix"
+    zabbix_server_dbpassword: "zabbix"
+
+    zabbix_server_database_creation: true
+    zabbix_server_database_sqlload: true
+
+    zabbix_web_version: "7.0"
+    zabbix_web_http_server: "nginx"
+    zabbix_web_nginx_vhost_port: 80
+    zabbix_web_nginx_vhost_server_name: "_"
+
+    zabbix_agent_server: "127.0.0.1"
+    zabbix_agent_serveractive: "127.0.0.1"
+
+  roles:
+    - role: community.zabbix.zabbix_server
+    - role: community.zabbix.zabbix_web
+    - role: community.zabbix.zabbix_agent

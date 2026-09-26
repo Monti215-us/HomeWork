@@ -1,0 +1,5 @@
+collections:
+  - name: community.zabbix
+    version: "4.2.0"
+  - name: community.postgresql
+  - name: ansible.posix
