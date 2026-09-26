@@ -14,18 +14,19 @@
 
   roles:
     - zabbix-agent
-    - zabbix-server
   
 - name: Настройка kibana
   hosts: kibana
   become: true
 
   roles:
+    - docker-compose
     - kibana
-
+    
 - name: Настройка elastic
   hosts: elastic
   become: true
 
   roles:
+    - docker-compose
     - elastic

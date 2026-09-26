@@ -57,6 +57,14 @@ resource "yandex_vpc_security_group" "bastion" {
     v4_cidr_blocks = ["0.0.0.0/0"]
     port           = 22
   }
+
+  ingress {
+    description       = "Zabbix Agent"
+    protocol          = "TCP"
+    port              = 10050
+    security_group_id = yandex_vpc_security_group.zabbix.id
+  }
+
   egress {
     description    = "Permit ANY"
     protocol       = "ANY"
@@ -88,7 +96,7 @@ resource "yandex_vpc_security_group" "web_sg" {
     description       = "Zabbix Agent"
     protocol          = "TCP"
     port              = 10050
-    security_group_id = yandex_vpc_security_group.bastion.id
+    security_group_id = yandex_vpc_security_group.zabbix.id
   }
 
   egress {
@@ -125,6 +133,13 @@ resource "yandex_vpc_security_group" "elasticsearch" {
     security_group_id = yandex_vpc_security_group.bastion.id
   }
 
+  ingress {
+    description       = "Zabbix Agent"
+    protocol          = "TCP"
+    port              = 10050
+    security_group_id = yandex_vpc_security_group.zabbix.id
+  }
+
   egress {
     protocol       = "ANY"
     v4_cidr_blocks = ["0.0.0.0/0"]
@@ -149,6 +164,53 @@ resource "yandex_vpc_security_group" "kibana" {
     protocol          = "TCP"
     port              = 22
     security_group_id = yandex_vpc_security_group.bastion.id
+  }
+
+  ingress {
+    description       = "Zabbix Agent"
+    protocol          = "TCP"
+    port              = 10050
+    security_group_id = yandex_vpc_security_group.zabbix.id
+  }
+
+  egress {
+    protocol       = "ANY"
+    v4_cidr_blocks = ["0.0.0.0/0"]
+    from_port      = 0
+    to_port        = 65535
+  }
+}
+
+resource "yandex_vpc_security_group" "zabbix" {
+  name       = "zabbix-sg-${var.flow}"
+  network_id = yandex_vpc_network.develop.id
+
+  ingress {
+    description    = "Kibana"
+    protocol       = "TCP"
+    port           = 5601
+    v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description       = "SSH from Bastion"
+    protocol          = "TCP"
+    port              = 22
+    security_group_id = yandex_vpc_security_group.bastion.id
+  }
+
+    ingress {
+    description       = "From zabbix"
+    protocol          = "TCP"
+    port              = 10051
+    security_group_id = yandex_vpc_security_group.zabbix.id
+  }
+
+  ingress {
+    description       = "Zabbix from zabbix"
+    protocol          = "TCP"
+    port              = 10050
+    security_group_id = yandex_vpc_security_group.zabbix.id
   }
 
   egress {

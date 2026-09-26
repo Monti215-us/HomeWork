@@ -1,18 +1,4 @@
 ---
-- name: Install required packages
-  ansible.builtin.apt:
-    name:
-      - docker.io
-      - docker-compose-plugin
-    state: present
-    update_cache: true
-
-- name: Enable Docker
-  ansible.builtin.service:
-    name: docker
-    state: started
-    enabled: true
-
 - name: Create Elasticsearch directory
   ansible.builtin.file:
     path: /opt/elasticsearch

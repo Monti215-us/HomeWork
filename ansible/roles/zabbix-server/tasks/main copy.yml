@@ -9,11 +9,9 @@
     deb: /tmp/zabbix-release.deb
     update_cache: true
 
-- name: Install PostgreSQL and components
+- name: Install PostgreSQL
   ansible.builtin.apt:
-    name:
-      - postgresql
-      - acl # Необходим для работы become_user: postgres в Ansible
+    name: postgresql
     state: present
 
 - name: Install Zabbix Server
@@ -30,6 +28,16 @@
     state: started
     enabled: true
 
+- name: Create Zabbix database
+  become_user: postgres
+  ansible.builtin.shell:
+    cmd: |
+      psql -tc "SELECT 1 FROM pg_database WHERE datname = 'zabbix'" | grep -q 1 ||
+      createdb zabbix
+  args:
+    executable: /bin/bash
+  changed_when: false
+
 - name: Create Zabbix database user
   become_user: postgres
   ansible.builtin.shell:
@@ -40,30 +48,18 @@
     executable: /bin/bash
   changed_when: false
 
-- name: Create Zabbix database with correct owner
-  become_user: postgres
-  ansible.builtin.shell:
-    cmd: |
-      psql -tc "SELECT 1 FROM pg_database WHERE datname = 'zabbix'" | grep -q 1 ||
-      createdb -O zabbix zabbix
-  args:
-    executable: /bin/bash
-  changed_when: false
-
-# Перед импортом схемы проверяем, пустая ли база (ищем таблицу users)
-- name: Check if Zabbix schema is already imported
+- name: Grant privileges to Zabbix database
   become_user: postgres
   ansible.builtin.command:
-    cmd: psql -d zabbix -tc "SELECT 1 FROM pg_tables WHERE tablename = 'users';"
-  register: zabbix_schema_check
-  changed_when: false
+    cmd: psql -c "GRANT ALL PRIVILEGES ON DATABASE zabbix TO zabbix;"
 
 - name: Import Zabbix database schema
   ansible.builtin.shell:
-    cmd: "zcat /usr/share/zabbix-sql-scripts/postgresql/server.sql.gz | psql -h 127.0.0.1 -U zabbix -d zabbix"
-  environment:
-    PGPASSWORD: 'zabbix'
-  when: "'1' not in zabbix_schema_check.stdout"
+    cmd: |
+      zcat /usr/share/zabbix/sql-scripts/postgresql/server.sql.gz |
+      sudo -u postgres psql zabbix
+  args:
+    executable: /bin/bash
 
 - name: Configure Zabbix Server database
   ansible.builtin.lineinfile:
@@ -74,11 +70,9 @@
     - { key: 'DBName', value: 'zabbix' }
     - { key: 'DBUser', value: 'zabbix' }
     - { key: 'DBPassword', value: 'zabbix' }
-  notify: Restart Zabbix Server
 
 - name: Start Zabbix Server
   ansible.builtin.service:
     name: zabbix-server
     state: started
     enabled: true
-
