@@ -29,10 +29,3 @@
 
   roles:
     - elastic
-
-- name: Настройка 
-  hosts: 
-  become: true
-
-  roles:
-    - 

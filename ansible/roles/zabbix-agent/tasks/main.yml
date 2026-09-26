@@ -16,7 +16,7 @@
 
 - name: Конфигурирование agent
   ansible.builtin.lineinfile:
-    path: /etc/zabbix/zabbix_agent.conf
+    path: /etc/zabbix/zabbix_agentd.conf
     regexp: '^Server='
     line: 'Server=10.0.1.11'
 

@@ -32,9 +32,9 @@ resource "yandex_compute_instance" "bastion" {
   scheduling_policy { preemptible = false }
 
   network_interface {
-    subnet_id          = yandex_vpc_subnet.develop_a.id #зона ВМ должна совпадать с зоной subnet!!!
+    subnet_id          = yandex_vpc_subnet.public_a.id #зона ВМ должна совпадать с зоной subnet!!!
     nat                = true # ВАЖНО! true позволяет видеть машину из интернета по публичному ip. 
-    security_group_ids = [yandex_vpc_security_group.LAN.id, yandex_vpc_security_group.bastion.id]
+    security_group_ids = [yandex_vpc_security_group.bastion.id]
   }
 }
 
@@ -68,9 +68,9 @@ resource "yandex_compute_instance" "web_a" {
   scheduling_policy { preemptible = false }
 
   network_interface {
-    subnet_id          = yandex_vpc_subnet.develop_a.id
+    subnet_id          = yandex_vpc_subnet.private_a.id
     nat                = false
-    security_group_ids = [yandex_vpc_security_group.LAN.id, yandex_vpc_security_group.web_sg.id]
+    security_group_ids = [yandex_vpc_security_group.web_sg.id]
   }
 }
 
@@ -102,9 +102,9 @@ resource "yandex_compute_instance" "web_b" {
   scheduling_policy { preemptible = false }
 
   network_interface {
-    subnet_id          = yandex_vpc_subnet.develop_b.id
+    subnet_id          = yandex_vpc_subnet.private_b.id
     nat                = false
-    security_group_ids = [yandex_vpc_security_group.LAN.id, yandex_vpc_security_group.web_sg.id]
+    security_group_ids = [yandex_vpc_security_group.web_sg.id]
 
   }
 }
@@ -152,9 +152,9 @@ resource "yandex_compute_instance" "elastic" {
   scheduling_policy { preemptible = false }
 
   network_interface {
-    subnet_id          = yandex_vpc_subnet.develop_a.id
+    subnet_id          = yandex_vpc_subnet.private_a.id
     nat                = false
-    security_group_ids = [yandex_vpc_security_group.LAN.id, yandex_vpc_security_group.web_sg.id]
+    security_group_ids = [yandex_vpc_security_group.elasticsearch.id]
   }
 }
 
@@ -187,8 +187,8 @@ resource "yandex_compute_instance" "kibana" {
   scheduling_policy { preemptible = false }
 
   network_interface {
-    subnet_id          = yandex_vpc_subnet.develop_a.id
-    nat                = false
-    security_group_ids = [yandex_vpc_security_group.LAN.id, yandex_vpc_security_group.web_sg.id]
+    subnet_id          = yandex_vpc_subnet.public_a.id
+    nat                = true
+    security_group_ids = [yandex_vpc_security_group.kibana.id]
   }
 }
