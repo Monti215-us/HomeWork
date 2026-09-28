@@ -1,0 +1,111 @@
+services:
+
+  postgres-server:
+    image: postgres:15-alpine
+
+    container_name: zabbix-postgres
+
+    restart: {{ zabbix_restart_policy }}
+
+    environment:
+      POSTGRES_DB: "{{ zabbix_db_name }}"
+      POSTGRES_USER: "{{ zabbix_db_user }}"
+      POSTGRES_PASSWORD: "{{ zabbix_db_password }}"
+
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+    networks:
+      - zabbix-net
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U {{ zabbix_db_user }} -d {{ zabbix_db_name }}"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  zabbix-server:
+    image: zabbix/zabbix-server-pgsql:alpine-{{ zabbix_version }}-latest
+
+    container_name: zabbix-server
+
+    restart: {{ zabbix_restart_policy }}
+
+    depends_on:
+      postgres-server:
+        condition: service_healthy
+
+    environment:
+      DB_SERVER_HOST: postgres-server
+      POSTGRES_DB: "{{ zabbix_db_name }}"
+      POSTGRES_USER: "{{ zabbix_db_user }}"
+      POSTGRES_PASSWORD: "{{ zabbix_db_password }}"
+
+    ports:
+      - "{{ zabbix_server_port }}:10051"
+
+    networks:
+      - zabbix-net
+
+
+  zabbix-web:
+    image: zabbix/zabbix-web-nginx-pgsql:alpine-{{ zabbix_version }}-latest
+
+    container_name: zabbix-web
+
+    restart: {{ zabbix_restart_policy }}
+
+    depends_on:
+      postgres-server:
+        condition: service_healthy
+
+      zabbix-server:
+        condition: service_started
+
+    environment:
+      ZBX_SERVER_HOST: zabbix-server
+      DB_SERVER_HOST: postgres-server
+
+      POSTGRES_DB: "{{ zabbix_db_name }}"
+      POSTGRES_USER: "{{ zabbix_db_user }}"
+      POSTGRES_PASSWORD: "{{ zabbix_db_password }}"
+
+      PHP_TZ: "{{ zabbix_timezone }}"
+
+    ports:
+      - "{{ zabbix_web_http_port }}:8080"
+
+    networks:
+      - zabbix-net
+
+
+  zabbix-agent:
+    image: zabbix/zabbix-agent:alpine-{{ zabbix_version }}-latest
+
+    container_name: zabbix-agent
+
+    restart: {{ zabbix_restart_policy }}
+
+    depends_on:
+      - zabbix-server
+
+    environment:
+      ZBX_SERVER_HOST: zabbix-server
+      ZBX_HOSTNAME: "zabbix-server"
+
+    networks:
+      - zabbix-net
+
+
+volumes:
+  postgres-data:
+
+
+networks:
+  zabbix-net:
+    driver: bridge

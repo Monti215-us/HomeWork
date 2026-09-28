@@ -1,0 +1,15 @@
+---
+zabbix_version: "7.0"
+
+zabbix_project_dir: "/opt/zabbix"
+
+zabbix_db_name: "zabbix"
+zabbix_db_user: "zabbix"
+zabbix_db_password: "zabbix"
+
+zabbix_web_http_port: 80
+zabbix_server_port: 10051
+
+zabbix_timezone: "Europe/Moscow"
+
+zabbix_restart_policy: "unless-stopped"

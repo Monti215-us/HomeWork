@@ -33,10 +33,9 @@
     - elastic
     - zabbix-agent
 
-- name: Настройка zabbix
+- name: Deploy Zabbix
   hosts: zabbix
   become: true
 
   roles:
     - zabbix-server
-    - zabbix-agent
