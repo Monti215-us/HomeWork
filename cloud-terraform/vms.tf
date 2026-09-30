@@ -9,10 +9,11 @@ resource "yandex_compute_instance" "bastion" {
   hostname    = "bastion" #формирует FDQN имя хоста, без hostname будет сгенрировано случаное имя.
   platform_id = "standard-v3"
   zone        = "ru-central1-a" #зона ВМ должна совпадать с зоной subnet!!!
+  allow_stopping_for_update = true
 
   resources {
     cores         = 2
-    memory        = 1
+    memory        = 2
     core_fraction = 20
   }
 
@@ -32,18 +33,18 @@ resource "yandex_compute_instance" "bastion" {
   scheduling_policy { preemptible = false }
 
   network_interface {
-    subnet_id          = yandex_vpc_subnet.public_a.id #зона ВМ должна совпадать с зоной subnet!!!
-    nat                = true # ВАЖНО! true позволяет видеть машину из интернета по публичному ip. 
-    security_group_ids = [yandex_vpc_security_group.bastion.id]
+    subnet_id          = yandex_vpc_subnet.public.id #зона ВМ должна совпадать с зоной subnet!!!
+    nat                = true # ВАЖНО! #Выдаёт ВМ публичный IPv4-адрес для доступа из интернета.
+    security_group_ids = [yandex_vpc_security_group.bastion_sg.id]
   }
 }
-
 
 resource "yandex_compute_instance" "web_a" {
   name        = "web-a" #Имя ВМ в облачной консоли
   hostname    = "web-a" #формирует FDQN имя хоста, без hostname будет сгенрировано случаное имя.
   platform_id = "standard-v3"
   zone        = "ru-central1-a" #зона ВМ должна совпадать с зоной subnet!!!
+  allow_stopping_for_update = true
 
 
   resources {
@@ -79,6 +80,7 @@ resource "yandex_compute_instance" "web_b" {
   hostname    = "web-b" #формирует FDQN имя хоста, без hostname будет сгенрировано случаное имя.
   platform_id = "standard-v3"
   zone        = "ru-central1-b" #зона ВМ должна совпадать с зоной subnet!!!
+  allow_stopping_for_update = true
 
   resources {
     cores         = 2
@@ -109,23 +111,9 @@ resource "yandex_compute_instance" "web_b" {
   }
 }
 
-resource "local_file" "inventory" {
-  content  = <<-XYZ
-  [bastion]
-  ${yandex_compute_instance.bastion.network_interface.0.nat_ip_address}
-
-  [webservers]
-  ${yandex_compute_instance.web_a.network_interface.0.ip_address}
-  ${yandex_compute_instance.web_b.network_interface.0.ip_address}
-  [webservers:vars]
-  ansible_ssh_common_args='-o ProxyCommand="ssh -p 22 -W %h:%p -q user@${yandex_compute_instance.bastion.network_interface.0.nat_ip_address}"'
-  XYZ
-  filename = "./hosts.ini"
-}
-
 resource "yandex_compute_instance" "elastic" {
-  name        = "el" #Имя ВМ в облачной консоли
-  hostname    = "el" #формирует FDQN имя хоста, без hostname будет сгенрировано случаное имя.
+  name        = "elastic" #Имя ВМ в облачной консоли
+  hostname    = "elastic" #формирует FDQN имя хоста, без hostname будет сгенрировано случаное имя.
   platform_id = "standard-v3"
   zone        = "ru-central1-a" #зона ВМ должна совпадать с зоной subnet!!!
   allow_stopping_for_update = true
@@ -155,7 +143,7 @@ resource "yandex_compute_instance" "elastic" {
   network_interface {
     subnet_id          = yandex_vpc_subnet.private_a.id
     nat                = false
-    security_group_ids = [yandex_vpc_security_group.elasticsearch.id]
+    security_group_ids = [yandex_vpc_security_group.elasticsearch_sg.id]
   }
 }
 
@@ -164,6 +152,7 @@ resource "yandex_compute_instance" "kibana" {
   hostname    = "kibana" #формирует FDQN имя хоста, без hostname будет сгенрировано случаное имя.
   platform_id = "standard-v3"
   zone        = "ru-central1-a" #зона ВМ должна совпадать с зоной subnet!!!
+  allow_stopping_for_update = true
 
 
   resources {
@@ -188,9 +177,9 @@ resource "yandex_compute_instance" "kibana" {
   scheduling_policy { preemptible = false }
 
   network_interface {
-    subnet_id          = yandex_vpc_subnet.public_a.id
-    nat                = true
-    security_group_ids = [yandex_vpc_security_group.kibana.id]
+    subnet_id          = yandex_vpc_subnet.public.id
+    nat                = true #Выдаёт ВМ публичный IPv4-адрес для доступа из интернета.
+    security_group_ids = [yandex_vpc_security_group.kibana_sg.id]
   }
 }
 
@@ -199,6 +188,7 @@ resource "yandex_compute_instance" "zabbix" {
   hostname    = "zabbix" #формирует FDQN имя хоста, без hostname будет сгенрировано случаное имя.
   platform_id = "standard-v3"
   zone        = "ru-central1-a" #зона ВМ должна совпадать с зоной subnet!!!
+  allow_stopping_for_update = true
 
 
   resources {
@@ -223,8 +213,8 @@ resource "yandex_compute_instance" "zabbix" {
   scheduling_policy { preemptible = false }
 
   network_interface {
-    subnet_id          = yandex_vpc_subnet.public_a.id
+    subnet_id          = yandex_vpc_subnet.public.id
     nat                = true
-    security_group_ids = [yandex_vpc_security_group.zabbix.id]
+    security_group_ids = [yandex_vpc_security_group.zabbix_sg.id]
   }
 }

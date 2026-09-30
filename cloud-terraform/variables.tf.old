@@ -14,8 +14,3 @@ variable "folder_id" {
   type    = string
   default = "<вставить_переменную>"
 }
-
-variable "flow" {
-  type    = string
-  default = "24-01"
-}
