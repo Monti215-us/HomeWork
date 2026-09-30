@@ -21,12 +21,12 @@ resource "yandex_alb_target_group" "web-site" { #имя ресурса и спо
 #Нужно указать хосты, на которые в конечном счете будут падать запросы. 
   target {
     subnet_id  = yandex_vpc_subnet.private_a.id 
-    ip_address = yandex_compute_instance.web_a.[0].ip_address
+    ip_address = yandex_compute_instance.web_a.network_interface[0].ip_address
   }
 
   target {
     subnet_id  = yandex_vpc_subnet.private_b.id
-    ip_address = yandex_compute_instance.web_b.[0].ip_address
+    ip_address = yandex_compute_instance.web_b.network_interface[0].ip_address
   }
 }
 
@@ -69,7 +69,7 @@ resource "yandex_alb_backend_group" "alb-bg" {
 # labels — произвольные метки ресурса. Они не участвуют непосредственно в маршрутизации.
 resource "yandex_alb_http_router" "alb-router" {
   name = "alb-router"
-  labels {
+  labels = {
     tf-label    = "tf-label-value"
     empty-label = "s"
   }
@@ -103,6 +103,7 @@ resource "yandex_alb_virtual_host" "web" {
 resource "yandex_alb_load_balancer" "web" {
   name       = "web-alb"
   network_id = yandex_vpc_network.network.id # в какой сети разместить. 
+  security_group_ids = [yandex_vpc_security_group.alb_sg.id]
 
   allocation_policy { #зоны доступности и подсети,
     location { 
@@ -135,10 +136,5 @@ resource "yandex_alb_load_balancer" "web" {
       http_router_id = yandex_alb_http_router.alb-router.id
     }
   }
-
-  network_interface {
-    subnet_id          = yandex_vpc_subnet.public.id
-    nat                = false
-    security_group_ids = [yandex_vpc_security_group.alb_sg.id]
   }
 }
