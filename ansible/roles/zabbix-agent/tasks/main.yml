@@ -18,7 +18,7 @@
   ansible.builtin.lineinfile:
     path: /etc/zabbix/zabbix_agentd.conf
     regexp: '^Server='
-    line: 'Server=10.0.1.11'
+    line: 'Server=zabbix.ru-central1.internal'
 
 - name: Enable and start Zabbix Agent
   ansible.builtin.service:

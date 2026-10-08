@@ -1,3 +1,4 @@
+#Создаёт директорию для хранения и запуска docker контейнера. 
 ---
 - name: Create Kibana directory
   ansible.builtin.file:

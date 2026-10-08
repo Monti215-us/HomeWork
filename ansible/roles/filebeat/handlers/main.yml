@@ -1,3 +1,5 @@
+# Данный модуль вызывается отдельно из tasks/*.yml
+# Рестартит Filebeat, если конфигурация изменилась. Необходимо для применения новых конфигураций при изменении.
 - name: Restart Filebeat
   ansible.builtin.service:
     name: filebeat

@@ -1,22 +1,25 @@
 ---
-- name: Download Filebeat repository package
+- name: Download Filebeat repository package # модуль скачивает из ссылки файл
   ansible.builtin.get_url:
     url: https://mirror.yandex.ru/mirrors/elastic/8/pool/main/f/filebeat/filebeat-8.19.0-amd64.deb
     dest: /tmp/filebeat.deb
     mode: "0644"
 
-- name: Install Filebeat
+- name: Install Filebeat                     # Установка скачанного пакета 
   ansible.builtin.apt:
     deb: /tmp/filebeat.deb
 
+
+# Ниже модуль Ansible, который используется для работы с шаблонами Jinja2.
+# Он берет файл с переменными на управляющей машине, подставляет их значения и создает готовый конфиг на управляемом узле.
 - name: Configure Filebeat
-  ansible.builtin.template:
-    src: filebeat.yml.j2
-    dest: /etc/filebeat/filebeat.yml
+  ansible.builtin.template: 
+    src: filebeat.yml.j2                 #файл на хосте, из которого нужно перенести переменные. Модуль ищет файл по пути /roles/filebeat/templates/
+    dest: /etc/filebeat/filebeat.yml     #куда помещает переменные
     owner: root
     group: root
     mode: "0600"
-  notify: Restart Filebeat
+  notify: Restart Filebeat               #если этот модуль использовался - то дополнительно запускает ещё один модуль следом из папки /filebeat/handlers/ 
 
 - name: Enable and start Filebeat
   ansible.builtin.service:

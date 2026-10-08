@@ -1,4 +1,6 @@
 ---
+# инструкции выполняются сверху вниз по порядку 
+
 - name: Настройка веб-сервера
   hosts: webservers
   become: true
@@ -33,7 +35,7 @@
     - elastic
     - zabbix-agent
 
-- name: Deploy Zabbix
+- name: Настройка Zabbix
   hosts: zabbix
   become: true
 

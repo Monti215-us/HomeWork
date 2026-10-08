@@ -1,5 +1,5 @@
 ---
-    - name: Install nginx
+    - name: Установка nginx
       ansible.builtin.apt:
         name: nginx
         state: present
@@ -9,8 +9,9 @@
       ansible.builtin.copy:
         src: index.html
         dest: /var/www/html/
-    
-    - name: Ensure nginx is running
+    # копирует страницу с сайтом на управляемый узел в указанную директорию    
+    # из директории ../files/ в /var/www/html/
+    - name: Запуск Nginx
       ansible.builtin.service:
         name: nginx
         state: started

@@ -5,13 +5,65 @@
     state: directory
     mode: "0755"
 
-- name: Copy Docker Compose file
+- name: Deploy Elasticsearch Compose file          #Закидывает файл в указанную директорию
   ansible.builtin.template:
     src: docker-compose.yml.j2
     dest: /opt/elasticsearch/docker-compose.yml
     mode: "0644"
+  notify: Restart Elasticsearch                    #При срабатывании запускает модуль рестарта сервиса
 
 - name: Start Elasticsearch
   community.docker.docker_compose_v2:
     project_src: /opt/elasticsearch
-    state: present
+    state: present                                 #Запускает контейнер 
+
+# Следующие строчки до конца были написаны при помощи AI с правками, т.к. я не понимал, почему изменение пароля в конфигах
+# и повторный запуск playbook блокировал доступ к сервисам Elasticsearch через Kibana. 
+# Оказалось, что после изменения пароля - новый пароль просто не устанавливался для пользователя kibana_system. 
+# Эта ошибка не позволяла добиться иденпотентности плейбука. 
+# Модуль ниже позволяет намеренно ждать запуска Elasticsearch и установить пароль для служебного пользователя kibana_system
+
+
+- name: Wait for Elasticsearch                     
+  ansible.builtin.uri:
+    url: "http://localhost:9200"
+    method: GET
+    user: elastic                             #Используемый логин для авторизации
+    password: "{{ elastic_password }}"        #Пароль для авторизации
+    force_basic_auth: true                    #Принудительно отправляет заголовки авторизации (логин/пароль) сразу с первым GET-запросом.
+    status_code: 200                          #Задача будет считаться успешной, только если сервер вернет HTTP-статус 200
+  register: elasticsearch_status              #Записывает весь ответ сервера (включая статус-код) в переменную elasticsearch_status.
+  retries: 30                                 #Максимальное кол-во повторений, пока условие until не совпадёт. 
+  delay: 5                                    #Интервал повторений в секундах
+  until: elasticsearch_status.status == 200   #Условие, при котором модуль будет считаться завершённым. 
+
+- name: Check kibana_system password                     #Данный модуль проверяет, подходит ли текущий пароль из переменной {{ kibana_password }} 
+  ansible.builtin.uri:                                   #для служебного пользователя kibana_system.
+    url: "http://localhost:9200/_security/_authenticate" 
+    method: GET                                   
+    user: kibana_system
+    password: "{{ kibana_password }}"
+    force_basic_auth: true
+    status_code:                                         #Задача будет считаться успешной, только если сервер вернет HTTP-статус 200
+      - 200
+      - 401
+  register: kibana_auth                                  #Сохраняет результат проверки. Если вернулся 401, значит, пароль нужно изменить.
+  no_log: true                                           #Запрещает Ansible выводить в логи консоли и отчеты данные этой задачи, чтобы случайно не скомпрометировать пароли.
+
+
+#Модуль ниже отправляет POST-запрос к API управления пользователями Elasticsearch,
+#чтобы задать новый пароль для kibana_system.
+# body_format: json и body: Передает новый пароль в формате JSON, как этого требует REST API Elastic.
+- name: Set kibana_system password
+  ansible.builtin.uri:
+    url: "http://localhost:9200/_security/user/kibana_system/_password"
+    method: POST
+    user: elastic
+    password: "{{ elastic_password }}"
+    force_basic_auth: true
+    body_format: json
+    body:
+      password: "{{ kibana_password }}"
+    status_code: 200                       #Если пройдена проверка на статус 200, Ansible просто пропустит этот шаг.
+  when: kibana_auth.status == 401          #Пароль будет устанавливаться только в том случае, если предыдущая задача вернула статус 401
+  no_log: true

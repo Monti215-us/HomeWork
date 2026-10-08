@@ -1,0 +1,30 @@
+# Конфиг .ssh 
+
+Host bastion
+  HostName 51.250.77.51
+  User user
+
+Host web-a
+  HostName web-a
+  User user
+  ProxyJump bastion
+
+Host web-b
+  HostName web-b
+  User user
+  ProxyJump bastion
+
+Host elastic
+  HostName elastic
+  User user
+  ProxyJump bastion
+
+Host kibana
+  HostName kibana
+  User user
+  ProxyJump bastion
+
+Host zabbix
+  HostName zabbix
+  User user
+  ProxyJump bastion

@@ -11,7 +11,7 @@
     group: root
     mode: "0755"
 
-- name: Create Zabbix compose file
+- name: Create Zabbix compose file         #закидывает файл docker-compose.yml.j2 из /templates/ 
   ansible.builtin.template:
     src: docker-compose.yml.j2
     dest: "{{ zabbix_project_dir }}/docker-compose.yml"
@@ -23,14 +23,15 @@
   ansible.builtin.command:
     cmd: docker compose pull
     chdir: "{{ zabbix_project_dir }}"
-  changed_when: false
 
 - name: Start Zabbix stack
   ansible.builtin.command:
     cmd: docker compose up -d
     chdir: "{{ zabbix_project_dir }}"
 
-- name: Show Zabbix containers
+
+ # показывает в выводе запущенные контейнеры с помощью переменной для построчного вывода. 
+- name: Show Zabbix containers            
   ansible.builtin.command:
     cmd: docker compose ps
     chdir: "{{ zabbix_project_dir }}"

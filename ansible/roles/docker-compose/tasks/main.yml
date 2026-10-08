@@ -1,3 +1,4 @@
+# Модуль для установки docker на управляемый узел
 ---
 - name: Install required packages
   ansible.builtin.apt:
@@ -44,6 +45,7 @@
     update_cache: true
   notify: Restart Docker
 
+
 - name: Enable and start Docker
   ansible.builtin.service:
     name: docker
@@ -62,7 +64,7 @@
   register: docker_compose_version
   changed_when: false
 
-- name: Show Docker versions
+- name: Show Docker versions #вывод установленной версии. 
   ansible.builtin.debug:
     msg:
       - "{{ docker_version.stdout }}"

@@ -30,9 +30,6 @@ resource "yandex_alb_target_group" "web-site" { #имя ресурса и спо
   }
 }
 
-
-
-
 #Создаём backend-group
 # target_group_ids — список Target Group, с которыми работает backend.
 # ID берём из созданного выше ресурса.
@@ -60,7 +57,6 @@ resource "yandex_alb_backend_group" "alb-bg" {
         path = "/"
       }
     }
-    http2 = "true"
   }
 }
 
